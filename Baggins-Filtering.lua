@@ -79,7 +79,6 @@ end
 
 
 local BagNames = {
-	[REAGENTBANK_CONTAINER] = L["Reagent Bank"],
 	[KEYRING_CONTAINER] = L["KeyRing"],
 	[BANK_CONTAINER] = L["Bank Frame"],
 	[BACKPACK_CONTAINER] = L["Backpack"],
@@ -88,7 +87,6 @@ local BagTypes = {
 	[BACKPACK_CONTAINER] = 1,
 	[BANK_CONTAINER] = 2,
 	[KEYRING_CONTAINER] = 3,
-	[REAGENTBANK_CONTAINER] = 4,
 }
 for i=1,NUM_BAG_SLOTS do
 	BagNames[i] = L["Bag"..i]
@@ -98,9 +96,6 @@ for i=1,NUM_BANKBAGSLOTS do
 	BagNames[NUM_BAG_SLOTS+i] = L["Bank Bag"..i]
 	BagTypes[NUM_BAG_SLOTS+i] = 2
 end
-
-BagNames[REAGENTBANK_CONTAINER] = L["Reagent Bank"]
-BagTypes[REAGENTBANK_CONTAINER] = 4
 
 
 local QualityNames = {
@@ -470,10 +465,6 @@ function Baggins:ForceFullBankUpdate()
 	for bagid in LBU:IterateBags("BANK") do
 		self:CheckSlotsChanged(bagid, true)
 	end
-
-	for bagid in LBU:IterateBags("REAGENTBANK") do
-		self:CheckSlotsChanged(bagid, true)
-	end
 end
 
 function Baggins:GetIncludeRule(category,create)
@@ -563,7 +554,7 @@ local ItemTypes = {
   [2]="Weapon",
   [3]="Gem",
   [4]="Armor",
-  [5]="Reagent",
+  [5]="Reagent",--won't use in classic --
   [6]="Projectile",
   [7]="Tradeskill",
   [8]="Item Enhancement",

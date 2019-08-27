@@ -584,14 +584,6 @@ function Baggins:RebuildOptions()
 					get = function() return p.overridebackpack end,
 					set = function(info, value) p.overridebackpack = value self:UpdateBackpackHook() end,
 				},
-				AutomaticReagentHandling = {
-					name = L["Reagent Deposit"],
-					type = "toggle",
-					desc = L["Automatically deposits crafting reagents into the reagent bank if available."],
-					order = 800,
-					get = function() return p.autoreagent end,
-					set = function(info, value) p.autoreagent = value end,
-				},
 			}
 		},
 		Layout = {
@@ -952,13 +944,6 @@ local itemTypeReverse = {
 			["Enchanting"] = 8,
 		},
 	},
-	["Reagent"] = {
-		["id"] = 5,
-		["subTypes"] = {
-			["Reagent"] = 0,
-			["Keystone"] = 1,
-		},
-	},
 	["Key"] = {
 		["id"] = 13,
 		["subTypes"] = {
@@ -1025,7 +1010,6 @@ local itemTypeReverse = {
 		["id"] = 15,
 		["subTypes"] = {
 			["Other"] = 4,
-			["Reagent"] = 1,
 			["Companion Pets"] = 2,
 			["Holiday"] = 3,
 			["Junk"] = 0,

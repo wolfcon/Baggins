@@ -1,4 +1,4 @@
-﻿## Interface: 80100
+﻿## Interface: 11301
 ## Title: Baggins
 ## Notes: Inventory Management with virtual bags divided into sections.
 ## Notes-zhCN: 使用分类的形式来管理背包。
@@ -6,7 +6,7 @@
 ## Notes-deDE: Inventar Manager mit virtuellen Taschen unterteilt in Kategorien.
 ## Notes-ruRU: Управление инвентарём, путём деления его на виртуальные сумки-секции
 
-## Author: Nargiddley, Mikk, Profalbert
+## Author: Nargiddley, Mikk, Profalbert, wolfcon
 ## Version: @project-revision@
 ## SavedVariables: BagginsDB
 ## X-Category: Inventory

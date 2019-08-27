@@ -23,10 +23,10 @@ local format =
 local band =
       _G.bit.band
 
-local GetItemCount, GetItemInfo, GetInventoryItemLink, GetItemQualityColor, GetItemFamily, BankButtonIDToInvSlotID, ReagentBankButtonIDToInvSlotID, GetNumBankSlots =
-      _G.GetItemCount, _G.GetItemInfo, _G.GetInventoryItemLink, _G.GetItemQualityColor, _G.GetItemFamily, _G.BankButtonIDToInvSlotID, _G.ReagentBankButtonIDToInvSlotID, _G.GetNumBankSlots
-local GetContainerItemInfo, GetContainerItemLink, GetContainerItemQuestInfo, GetContainerNumFreeSlots, GetContainerItemCooldown, DepositReagentBank, IsReagentBankUnlocked =
-      _G.GetContainerItemInfo, _G.GetContainerItemLink, _G.GetContainerItemQuestInfo, _G.GetContainerNumFreeSlots, _G.GetContainerItemCooldown, _G.DepositReagentBank, _G.IsReagentBankUnlocked
+local GetItemCount, GetItemInfo, GetInventoryItemLink, GetItemQualityColor, GetItemFamily, BankButtonIDToInvSlotID, GetNumBankSlots =
+      _G.GetItemCount, _G.GetItemInfo, _G.GetInventoryItemLink, _G.GetItemQualityColor, _G.GetItemFamily, _G.BankButtonIDToInvSlotID, _G.GetNumBankSlots
+local GetContainerItemInfo, GetContainerItemLink, GetContainerItemQuestInfo, GetContainerNumFreeSlots, GetContainerItemCooldown =
+      _G.GetContainerItemInfo, _G.GetContainerItemLink, _G.GetContainerItemQuestInfo, _G.GetContainerNumFreeSlots, _G.GetContainerItemCooldown
 local C_Item, ItemLocation, InCombatLockdown, IsModifiedClick, GetDetailedItemLevelInfo, GetContainerItemID, InRepairMode, KeyRingButtonIDToInvSlotID, C_PetJournal, C_NewItems, PlaySound =
       _G.C_Item, _G.ItemLocation, _G.InCombatLockdown, _G.IsModifiedClick, _G.GetDetailedItemLevelInfo, _G.GetContainerItemID, _G.InRepairMode, _G.KeyRingButtonIDToInvSlotID, _G.C_PetJournal, _G.C_NewItems, _G.PlaySound
 
@@ -45,7 +45,6 @@ local rdel = del
 -- Bank tab locals, for auto reagent deposit
 local BankFrame_ShowPanel = BankFrame_ShowPanel
 local BANK_TAB = BANK_PANELS[1].name
-local REAGENT_BANK_TAB = BANK_PANELS[2].name
 
 Baggins.hasIcon = "Interface\\Icons\\INV_Jewelry_Ring_03"
 Baggins.cannotDetachTooltip = true
@@ -394,8 +393,6 @@ function Baggins:OnEnable()
 	self:RegisterEvent("QUEST_ACCEPTED", "UpdateItemButtons")
 	self:RegisterEvent("UNIT_QUEST_LOG_CHANGED", "UpdateItemButtons")
 	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED", "OnBankChanged")
-	self:RegisterEvent("PLAYERREAGENTBANKSLOTS_CHANGED", "OnReagentBankChanged")
-	self:RegisterEvent("REAGENTBANK_PURCHASED", "OnReagentBankPurchased")
 	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED", "OnBankSlotPurchased")
 	self:RegisterEvent("BANKFRAME_CLOSED", "OnBankClosed")
 	self:RegisterEvent("BANKFRAME_OPENED", "OnBankOpened")
@@ -530,14 +527,7 @@ function Baggins:SaveItemCounts()
 			end
 		end
 	end
-	for bag,slot,link in LBU:Iterate("REAGENTBANK") do
-		if link then
-			local id = tonumber(link:match("item:(%d+)"))
-			if id and not itemcounts[id] then
-				itemcounts[id] = { count = GetItemCount(id), ts = time() }
-			end
-		end
-	end
+
 	for slot = 0, INVSLOT_LAST_EQUIPPED do	-- 0--19
 		local link = GetInventoryItemLink("player",slot)
 		if link then
@@ -632,16 +622,6 @@ end
 
 function Baggins:OnBankChanged()
 	self:OnBagUpdate(-1)
-end
-
-function Baggins:OnReagentBankChanged()
-	self:OnBagUpdate(REAGENTBANK_CONTAINER)
-end
-
-function Baggins:OnReagentBankPurchased()
-	self:UpdateBankControlFrame()
-	self:ForceFullBankUpdate()
-	self:UpdateBags()
 end
 
 function Baggins:OnBankSlotPurchased()
@@ -1957,15 +1937,6 @@ local function BagginsItemButton_UpdateTooltip(button)
 		CursorUpdate(button);
 		return
 	end
-	if button:GetParent():GetID() == REAGENTBANK_CONTAINER then
-		if ( not GameTooltip:SetInventoryItem("player", ReagentBankButtonIDToInvSlotID(button:GetID(),button.isBag)) ) then
-			if ( button.isBag ) then
-				GameTooltip:SetText(button.tooltipText);
-			end
-		end
-		CursorUpdate(button);
-		return
-	end
 
 
 	local showSell = nil;
@@ -2249,21 +2220,12 @@ do
 
 	local function BagginsItemButton_GetTargetBankTab(bag, slot)
 		-- There's likely a better way then looking at the tooltip
-		-- It seems all crafting reagents now have a line in the tooltip called "Crafting Reagent" in enUS.
 
 		-- setup gratuity based on bag and slot
-		if LBU:IsReagentBank(bag) then
-			gratuity:SetInventoryItem("player", ReagentBankButtonIDToInvSlotID(slot))
-		elseif LBU:IsBank(bag) then
+		if LBU:IsBank(bag) then
 			gratuity:SetInventoryItem("player", BankButtonIDToInvSlotID(slot))
 		else
 			gratuity:SetBagItem(bag, slot)
-		end
-
-		-- count remaining slots and switch the tab based on the item type
-		local count = LBU:CountSlots("REAGENTBANK")
-		if gratuity:Find(L["Crafting Reagent"]) and count ~= nil and count > 0 then
-			return REAGENT_BANK_TAB
 		end
 
 		return BANK_TAB
@@ -2278,26 +2240,8 @@ do
 		button.origOnClick = nil
 	end
 
-	local function BagginsItemButton_AutoReagent(button, mouseButton, ...)
-		if Baggins.bankIsOpen and Baggins.db.profile.autoreagent
-				and not IsModifiedClick() and mouseButton == "RightButton" then
-			local bag = button:GetParent():GetID()
-			local slot = button:GetID()
-
-			local target = BagginsItemButton_GetTargetBankTab(bag, slot)
-
-			if target == REAGENT_BANK_TAB then
-				BankFrame.selectedTab = 2
-				button.origOnClick = button:GetScript("OnClick")
-				button:SetScript("OnClick",BagginsItemButton_OnClick)
-			else
-				BankFrame.selectedTab = 1
-			end
-		end
-	end
 
 	local function BagginsItemButton_PreClick(button)
-		BagginsItemButton_AutoReagent(button, GetMouseButtonClicked())
 		if GetMouseButtonClicked() == "RightButton" and button.tainted then
 			print("|cff00cc00Baggins: |cffffff00Right-clicking this button will not work until you leave combat|r")
 		end
@@ -2707,30 +2651,6 @@ function Baggins:CreateBankControlFrame()
 	frame.slotbuy:SetHeight(18)
 	frame.slotbuy:SetText(L["Buy Bank Bag Slot"])
 	frame.slotbuy:Hide()
-
-	-- A button to buy the reagent bank
-	frame.rabuy = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	frame.rabuy:SetScript("OnClick", function(this)
-		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION)
-		StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
-	end)
-	frame.rabuy:SetWidth(160)
-	frame.rabuy:SetHeight(18)
-	frame.rabuy:SetText(L["Buy Reagent Bank"])
-	frame.rabuy:Hide()
-
-	-- Finally, a button to allow blizzards "Deposit All Reagents" feature to work.
-	-- this takes all your reagents and moves them into the reagent bank
-	frame.radeposit = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
-	frame.radeposit:SetScript("OnClick", function(this)
-		DepositReagentBank()
-	end)
-	frame.radeposit:SetWidth(160)
-	frame.radeposit:SetHeight(18)
-	frame.radeposit:SetText(L["Deposit All Reagents"])
-	frame.radeposit:Hide()
-
-	frame:Hide()
 end
 
 function Baggins:UpdateBankControlFrame()
@@ -2751,18 +2671,6 @@ function Baggins:UpdateBankControlFrame()
 		anchorframe = frame.slotbuy
 		anchorpoint = "BOTTOMLEFT"
 		anchoryoffset = -2
-	end
-
-	if IsReagentBankUnlocked() then
-		frame.radeposit:SetPoint("TOPLEFT", anchorframe, anchorpoint, 0, anchoryoffset)
-		frame.radeposit:Show()
-		frame.rabuy:Hide()
-		numbuttons = numbuttons + 1
-	else
-		frame.rabuy:SetPoint("TOPLEFT", anchorframe, anchorpoint, 0, anchoryoffset)
-		frame.rabuy:Show()
-		frame.radeposit:Hide()
-		numbuttons = numbuttons + 1
 	end
 
 	frame:SetHeight((18 + 2) * numbuttons)
@@ -2957,7 +2865,7 @@ function Baggins:UpdateItemButton(bagframe,button,bag,slot)
 		if not itemid then
 			local bagtype, itemFamily = Baggins:IsSpecialBag(bag)
 			bagtype = bagtype or ""
-			count = bagtype..LBU:CountSlots(LBU:IsBank(bag) and "BANK" or LBU:IsReagentBank(bag) and "REAGENTBANK" or "BAGS", itemFamily)
+			count = bagtype..LBU:CountSlots(LBU:IsBank(bag) and "BANK" or "BAGS", itemFamily)
 		else
 			count = GetItemCount(itemid)
 			if LBU:IsBank(bag, true) then
