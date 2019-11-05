@@ -1,0 +1,138 @@
+9x baggins\Baggins-@project-revision@.lua:3250: attempt to call method 'CountSlots' (a nil value)
+baggins\Baggins-@project-revision@.lua:3250: in function `OnTextUpdate'
+baggins\Baggins-@project-revision@.lua:3133: in function `UpdateText'
+baggins\Baggins-@project-revision@.lua:1058: in function `OnBagUpdate'
+baggins\Baggins-@project-revision@.lua:1039: in function `?'
+...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0-7.lua:119: in function <...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua:119>
+[C]: ?
+...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0-7.lua:29: in function <...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0.lua:25>
+...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0-7.lua:64: in function `Fire'
+...cebaggins\libs\AceEvent-3.0\AceEvent-3.0-4.lua:120: in function <...cebaggins\libs\AceEvent-3.0\AceEvent-3.0.lua:119>
+
+
+
+
+
+1x ...cebaggins\libs\AceEvent-3.0\AceEvent-3.0-4.lua:33: Attempt to register unknown event "SCRAPPING_MACHINE_SHOW"
+[C]: in function `RegisterEvent'
+...cebaggins\libs\AceEvent-3.0\AceEvent-3.0-4.lua:33: in function `OnUsed'
+...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0-7.lua:142: in function `RegisterEvent'
+baggins\Baggins-@project-revision@.lua:402: in function <baggins\Baggins.lua:388>
+(tail call): ?
+[C]: ?
+[string "safecall Dispatcher[1]"]:9: in function <[string "safecall Dispatcher[1]"]:5>
+(tail call): ?
+...cebaggins\libs\AceAddon-3.0\AceAddon-3.0-12.lua:558: in function `EnableAddon'
+...cebaggins\libs\AceAddon-3.0\AceAddon-3.0-12.lua:651: in function <...cebaggins\libs\AceAddon-3.0\AceAddon-3.0.lua:636>
+[C]: in function `LoadAddOn'
+FrameXML\UIParent.lua:353: in function `UIParentLoadAddOn'
+FrameXML\UIParent.lua:424: in function `TimeManager_LoadUI'
+FrameXML\UIParent.lua:693: in function <FrameXML\UIParent.lua:658>
+
+
+
+
+1x baggins\Baggins-@project-revision@.lua:262: CreateFrame: Unknown frame type 'ItemButton'
+[C]: in function `CreateFrame'
+baggins\Baggins-@project-revision@.lua:262: in function <baggins\Baggins.lua:261>
+baggins\Baggins-@project-revision@.lua:279: in function `RepopulateButtonPool'
+baggins\Baggins-@project-revision@.lua:332: in function <baggins\Baggins.lua:321>
+(tail call): ?
+[C]: ?
+[string "safecall Dispatcher[1]"]:9: in function <[string "safecall Dispatcher[1]"]:5>
+(tail call): ?
+...cebaggins\libs\AceAddon-3.0\AceAddon-3.0-12.lua:529: in function `InitializeAddon'
+...cebaggins\libs\AceAddon-3.0\AceAddon-3.0-12.lua:644: in function <...cebaggins\libs\AceAddon-3.0\AceAddon-3.0.lua:636>
+
+
+
+
+
+1x ...cebaggins\libs\AceEvent-3.0\AceEvent-3.0-4.lua:33: Attempt to register unknown event "EQUIPMENT_SETS_CHANGED"
+[C]: in function `RegisterEvent'
+...cebaggins\libs\AceEvent-3.0\AceEvent-3.0-4.lua:33: in function `OnUsed'
+...ack\Libs\CallbackHandler-1.0\CallbackHandler-1.0-7.lua:142: in function `?'
+baggins\Baggins-Filtering.lua:1446: in main chunk
+
+Locals:
+(*temporary) = AceEvent30Frame {
+ 0 = <userdata>
+}
+(*temporary) = "EQUIPMENT_SETS_CHANGED"
+
+
+
+
+1x ...Ons\baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0-35.lua:262: table index is nil
+...Ons\baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0-35.lua:262: in main chunk
+
+Locals:
+MAJOR = "LibBagUtils-1.0"
+MINOR = 35
+lib = <table> {
+ GetContainerNumFreeSlots = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:190
+ GetContainerFamily = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:170
+ MakeLinkComparator = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:216
+ slotLocks = <table> {
+ }
+}
+strmatch = <function> defined =[C]:-1
+gsub = <function> defined =[C]:-1
+floor = <function> defined =[C]:-1
+tconcat = <function> defined =[C]:-1
+band = <function> defined =[C]:-1
+pairs = <function> defined =[C]:-1
+select = <function> defined =[C]:-1
+type = <function> defined =[C]:-1
+next = <function> defined =[C]:-1
+tonumber = <function> defined =[C]:-1
+tostring = <function> defined =[C]:-1
+GetTime = <function> defined =[C]:-1
+GetContainerNumSlots = <function> defined =[C]:-1
+GetContainerNumFreeSlots = <function> defined =[C]:-1
+GetContainerItemLink = <function> defined =[C]:-1
+GetContainerItemInfo = <function> defined =[C]:-1
+GetItemInfo = <function> defined =[C]:-1
+GetItemFamily = <function> defined =[C]:-1
+BANK_CONTAINER = -1
+NUM_BANKBAGSLOTS = 6
+NUM_BAG_SLOTS = 4
+REAGENTBANK_CONTAINER = nil
+t = <table> {
+}
+print = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:55
+escapePatterns = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:69
+floor = <function> defined =[C]:-1
+compareFuzzySuffix = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:80
+makeLinkComparator = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:88
+GetTime = <function> defined =[C]:-1
+lockSlot = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:139
+isLocked = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:147
+GetContainerFamily = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:160
+myGetContainerNumFreeSlots = <function> defined @baggins\libs\LibBagUtils-1.0\LibBagUtils-1.0.lua:175
+bags = <table> {
+ REAGENTBANK = <table> {
+ }
+ BAGSBANK = <table> {
+ }
+ BAGS = <table> {
+ }
+ BANK = <table> {
+ }
+}
+(*temporary) = <table> {
+}
+(*temporary) = <table> {
+ 6 = 6
+ 7 = 7
+ 8 = 8
+ 10 = 10
+ -1 = -1
+ 5 = 5
+ 9 = 9
+}
+(*temporary) = 9
+(*temporary) = nil
+(*temporary) = nil
+(*temporary) = nil
+(*temporary) = "table index is nil"

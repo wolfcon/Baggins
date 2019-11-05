@@ -565,9 +565,9 @@ local ItemTypes = {
   [13]="Key",
   [14]="Permanent(OBSOLETE)",
   [15]="Miscellaneous",
-  [16]="Glyph",
-  [17]="Battle Pets",
-  [18]="WoW Token",
+  [16]="Glyph",--won't use in classic --
+  [17]="Battle Pets",--won't use in classic --
+  [18]="WoW Token",--won't use in classic --
   [0]="Consumable"
 }
 
@@ -1443,7 +1443,7 @@ local function fullUpdateSets()
 	Baggins:ForceFullUpdate()
 end
 
-Baggins:RegisterEvent("EQUIPMENT_SETS_CHANGED", fullUpdateSets)
+-- Baggins:RegisterEvent("EQUIPMENT_SETS_CHANGED", fullUpdateSets)
 -- required when AddonLoader is not installed
 Baggins:RegisterEvent("PLAYER_LOGIN", updateSets)
 -- required when AddonLoader is installed

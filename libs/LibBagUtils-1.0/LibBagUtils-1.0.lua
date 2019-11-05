@@ -1,4 +1,4 @@
-local MAJOR,MINOR = "LibBagUtils-1.0", tonumber(("$Revision: 35 $"):match("%d+"))
+local MAJOR,MINOR = "LibBagUtils-1.0", tonumber(("$Revision: 27 $"):match("%d+"))
 local lib = LibStub:NewLibrary(MAJOR,MINOR)
 
 --
@@ -40,7 +40,6 @@ local BANK_CONTAINER = BANK_CONTAINER
 -- local KEYRING_CONTAINER = KEYRING_CONTAINER
 local NUM_BANKBAGSLOTS = NUM_BANKBAGSLOTS
 local NUM_BAG_SLOTS = NUM_BAG_SLOTS
-local REAGENTBANK_CONTAINER = REAGENTBANK_CONTAINER
 
 -- no longer used: lib.frame = lib.frame or CreateFrame("frame", string.gsub(MAJOR,"[^%w]", "_").."_Frame")
 if lib.frame then
@@ -222,7 +221,7 @@ end
 -----------------------------------------------------------------------
 -- API :IterateBags("which", itemFamily)
 --
--- which       - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- which       - string: "BAGS", "BANK", "BAGSBANK"
 -- itemFamily  - number: bitmasked itemFamily; will accept combinations
 --                       0: will only iterate regular bags
 --               nil: will iterate all bags (including possible future special bags!)
@@ -234,7 +233,6 @@ local bags = {
 	BAGS = {},
 	BANK = {},
 	BAGSBANK = {},
-	REAGENTBANK = {},
 }
 
 -- Carried bags
@@ -257,9 +255,6 @@ end
 for k,v in pairs(bags.BANK) do
 	bags.BAGSBANK[k]=v
 end
-
--- Reagent Bank
-bags.REAGENTBANK[REAGENTBANK_CONTAINER] = REAGENTBANK_CONTAINER
 
 local function iterbags(tab, cur)
 	cur = next(tab, cur)
@@ -289,8 +284,6 @@ function lib:IterateBags(which, itemFamily)
 		error([[Usage: LibBagUtils:IterateBags("which"[, itemFamily])]], 2)
 	end
 	
-	if which == "REAGENTBANK" and not IsReagentBankUnlocked() then return function() end, baglist end
-	
 	if not itemFamily then
 		return iterbags, baglist
 	elseif itemFamily==0 then
@@ -313,7 +306,7 @@ end
 -----------------------------------------------------------------------
 -- API: CountSlots(which, itemFamily)
 --
--- which       - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- which       - string: "BAGS", "BANK", "BAGSBANK"
 -- itemFamily  - bitmasked itemFamily; see :IterateBags
 --
 -- Returns: numFreeSlots, numTotalSlots
@@ -325,9 +318,9 @@ function lib:CountSlots(which, itemFamily)
 		error([[Usage: LibBagUtils:IterateBags("which"[, itemFamily])]], 2)
 	end
 	
-	local free,tot=0,0
-	if which == "REAGENTBANK" and not IsReagentBankUnlocked() then return free,tot end
 	
+	local free,tot=0,0
+
 	if not itemFamily then
 		for bag in pairs(baglist) do
 			free = free + myGetContainerNumFreeSlots(bag)
@@ -361,26 +354,15 @@ end
 --
 -- Returns true if the given bag is a bank bag
 
-function lib:IsBank(bag, incReagentBank)
+function lib:IsBank(bag)
 	return bag==BANK_CONTAINER or
-		(bag>=NUM_BAG_SLOTS+1 and bag<=NUM_BAG_SLOTS+NUM_BANKBAGSLOTS) or (incReagentBank and lib:IsReagentBank(bag))
-end
-
------------------------------------------------------------------------
--- API :IsReagentBank(bag)
---
--- bag        - number: bag number
---
--- Returns true if the given bag is the reagent bank "bag"
-
-function lib:IsReagentBank(bag)
-	return IsReagentBankUnlocked() and (bag==REAGENTBANK_CONTAINER and true or nil) or nil
+		(bag>=NUM_BAG_SLOTS+1 and bag<=NUM_BAG_SLOTS+NUM_BANKBAGSLOTS)
 end
 
 -----------------------------------------------------------------------
 -- API :Iterate("which"[, "lookingfor"])
 -- 
--- which       - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- which       - string: "BAGS", "BANK", "BAGSBANK"
 -- lookingfor  - OPTIONAL: itemLink, itemName, itemString or itemId(number)
 --
 -- Returns an iterator that can be used in a for loop, e.g.:
@@ -388,7 +370,6 @@ end
 --   for bag,slot,link in LBU:Iterate("BAGSBANK", 29434) do  -- find all badges of justice
 
 function lib:Iterate(which, lookingfor)
-	if which == "REAGENTBANK" and not IsReagentBankUnlocked() then return function() end end
 	
 	local baglist=bags[which]
 	if not baglist then
@@ -427,15 +408,13 @@ end
 -----------------------------------------------------------------------
 -- API :Find("where", "lookingfor", findLocked])
 --
--- where       - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- where       - string: "BAGS", "BANK", "BAGSBANK"
 -- lookingfor  - itemLink, itemName, itemString or itemId(number)
 -- findLocked   - OPTIONAL: if true, will also return locked slots
 --
 -- Returns:  bag,slot,link    or nil on failure
 
 function lib:Find(where,lookingfor,findLocked)
-	if where == "REAGENTBANK" and not IsReagentBankUnlocked() then return nil end
-	
 	for bag,slot,link in lib:Iterate(where,lookingfor) do
 		local _, itemCount, locked, _, _ = GetContainerItemInfo(bag,slot)
 		if findLocked or not locked then
@@ -448,15 +427,13 @@ end
 -----------------------------------------------------------------------
 -- API :FindSmallestStack("where", "lookingfor"[, findLocked])
 --
--- where       - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- where       - string: "BAGS", "BANK", "BAGSBANK"
 -- lookingfor  - itemLink, itemName, itemString or itemId(number)
 -- findLocked   - OPTIONAL: if true, will also return locked slots
 --
 -- Returns:  bag,slot,size    or nil on failure
 
 function lib:FindSmallestStack(where,lookingfor,findLocked)
-	if where == "REAGENTBANK" and not IsReagentBankUnlocked() then return nil end
-
 	local smallest=9e9
 	local smbag,smslot
 	for bag,slot in lib:Iterate(where,lookingfor) do
@@ -479,17 +456,14 @@ end
 -- Put the item currently held by the cursor in the most suitable bag 
 -- (considering specialty bags, already-existing stacks..)
 --
--- where           - string: "BAGS", "BANK", "BAGSBANK", "REAGENTBANK"
+-- where           - string: "BAGS", "BANK", "BAGSBANK"
 -- count           - OPTIONAL: number: if given, PutItem() will attempt to stack the item on top of another suitable stack. This is not possible without knowing the count.
 -- dontClearOnFail - OPTIONAL: boolean: If the put operation fails due to no room, do NOT clear the cursor. (Note that some other wow client errors WILL clear the cursor)
 --
 -- Returns:  bag,slot    or false for out-of-room
 --           0,0 will be returned if the function is called without an item in the cursor
---           nil         when which is REAGENTBANK and the ReagentBank has not been unlocked
 
 local function putinbag(destbag)
-	if where == "REAGENTBANK" and not IsReagentBankUnlocked() then return nil end
-
 	for slot=1,GetContainerNumSlots(destbag) do
 		if (not GetContainerItemInfo(destbag,slot)) and (not isLocked(destbag,slot)) then	-- empty!
 			PickupContainerItem(destbag,slot)
@@ -503,8 +477,6 @@ local function putinbag(destbag)
 end
 
 function lib:PutItem(where, count, dontClearOnFail)
-	if where == "REAGENTBANK" and not IsReagentBankUnlocked() then return nil end
-
 	local cursorType,itemId,itemLink = GetCursorInfo()
 	if cursorType~="item" then
 		geterrorhandler()(MAJOR..": PutItem(): There was no item in the cursor.")

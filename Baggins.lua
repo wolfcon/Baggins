@@ -259,7 +259,7 @@ do
 	local buttonPool = {}
 
 	local function createItemButton()
-		local frame = CreateFrame("ItemButton","BagginsPooledItemButton"..buttonCount,nil,"ContainerFrameItemButtonTemplate")
+		local frame = CreateFrame("Button","BagginsPooledItemButton"..buttonCount,nil,"ContainerFrameItemButtonTemplate")
                 frame.GetItemContextMatchResult = nil
 		buttonCount = buttonCount + 1
 		if InCombatLockdown() then
@@ -399,8 +399,8 @@ function Baggins:OnEnable()
 	self:RegisterEvent("PLAYER_MONEY", "UpdateMoneyFrame")
 	self:RegisterEvent('AUCTION_HOUSE_SHOW', "AuctionHouse")
 	self:RegisterEvent('AUCTION_HOUSE_CLOSED', "CloseAllBags")
-	self:RegisterEvent('SCRAPPING_MACHINE_SHOW', "OpenAllBags")
-	self:RegisterEvent('SCRAPPING_MACHINE_CLOSE', "CloseAllBags")
+	-- self:RegisterEvent('SCRAPPING_MACHINE_SHOW', "OpenAllBags")
+	-- self:RegisterEvent('SCRAPPING_MACHINE_CLOSE', "CloseAllBags")
 	self:RegisterBucketEvent('ADDON_LOADED', 5,'OnAddonLoaded')
 
 	self:RegisterSignal('CategoryMatchAdded', self.CategoryMatchAdded, self)
@@ -1041,7 +1041,7 @@ end
 
 function Baggins:OnBagUpdate(bagid)
 	--ignore bags -4 ( currency ); -3 is reagent bank
-	if bagid <= -4 then return end
+	if bagid <= -2 then return end
 	bagupdatebucket[bagid] = true
 	if self:IsWhateverOpen() then
 		self:ScheduleTimer("RunBagUpdates",0.1)
@@ -2091,7 +2091,7 @@ do
 
 	function makeMenu(bag, slot)
 		wipe(menu)
-		if not LBU:IsBank(bag, true) then
+		if not LBU:IsBank(bag) then
 			local use = {
 				text = L["Use"],
 				tooltipTitle = L["Use"],
@@ -2278,7 +2278,7 @@ do
 					Baggins:Unhook(DropDownList1, "OnHide")
 				end)
 
-				if not LBU:IsBank(bag, true) and not InCombatLockdown() then
+				if not LBU:IsBank(bag) and not InCombatLockdown() then
 					showUseButton(bag, slot)
 				else
 					hideUseButton()
@@ -2833,7 +2833,7 @@ function Baggins:UpdateItemButton(bagframe,button,bag,slot)
 		button.glow:Hide()
 	end
 	local text = button.newtext
-	if p.highlightnew and itemid and not LBU:IsBank(bag, true) then
+	if p.highlightnew and itemid and not LBU:IsBank(bag) then
 		local isNew = self:IsNew(itemid)
 		if isNew == 1 then
 			text:SetText(L["*New*"])
@@ -2868,7 +2868,7 @@ function Baggins:UpdateItemButton(bagframe,button,bag,slot)
 			count = bagtype..LBU:CountSlots(LBU:IsBank(bag) and "BANK" or "BAGS", itemFamily)
 		else
 			count = GetItemCount(itemid)
-			if LBU:IsBank(bag, true) then
+			if LBU:IsBank(bag) then
 				count = GetItemCount(itemid,true) - count
 			end
 			if IsEquippedItem(itemid) then
