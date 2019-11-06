@@ -1406,3 +1406,173 @@ function Baggins:UpdateLayout()
 		self:LoadBagPositions()
 	end
 end
+
+
+---------------------
+-- Frame Placement --
+---------------------
+-- manual
+function Baggins:SaveBagPosition(bagid)
+	local frame = self.bagframes[bagid]
+	if not frame then return end
+	local s = frame:GetEffectiveScale()
+	self.db.profile.bags[bagid].x = frame:GetLeft() * s
+	self.db.profile.bags[bagid].y = frame:GetTop() * s
+end
+
+function Baggins:LoadBagPositions()
+	for i = 1, #self.db.profile.bags do
+		self:LoadBagPosition(i)
+	end
+end
+
+function Baggins:LoadBagPosition(bagid)
+	local bag = self.db.profile.bags[bagid]
+	local frame = self.bagframes[bagid]
+	if not frame then return end
+	local s = frame:GetEffectiveScale()
+	frame:ClearAllPoints()
+	if bag.x and bag.y then
+		frame:SetPoint("TOPLEFT",UIParent,"BOTTOMLEFT", bag.x / s, bag.y / s)
+	else
+		frame:SetPoint("CENTER",UIParent,"CENTER",0,0)
+	end
+end
+-- auto
+function Baggins:SaveBagPlacement()
+	local p = self.db.profile
+	local frame = BagginsBagPlacement
+	if not frame then return end
+	local s = frame:GetEffectiveScale()
+	p.rightoffset = (GetScreenWidth() - frame:GetRight() )
+	p.bottomoffset = frame:GetBottom()
+	p.topoffset = (GetScreenHeight() - frame:GetTop() )
+	p.leftoffset = frame:GetLeft()
+end
+
+function Baggins:LoadBagPlacement()
+	local p = self.db.profile
+	local frame = BagginsBagPlacement
+	if not frame then return end
+	local s = frame:GetEffectiveScale()
+	frame:ClearAllPoints()
+	frame:SetPoint("BOTTOMRIGHT",UIParent,"BOTTOMRIGHT", - p.rightoffset, p.bottomoffset)
+	frame:SetPoint("TOPRIGHT",UIParent,"TOPRIGHT", - p.rightoffset, - p.topoffset)
+end
+
+function Baggins:ShowPlacementFrame()
+	if not BagginsBagPlacement then
+		self:CreateBagPlacementFrame()
+	end
+	Baggins:LoadBagPlacement()
+	BagginsBagPlacement:Show()
+end
+
+function Baggins:LayoutBagFrames()
+	self.dirtyBagLayout = true
+	self:ScheduleRefresh()
+end
+
+local CONTAINER_SPACING, VISIBLE_CONTAINER_SPACING =
+      CONTAINER_SPACING, VISIBLE_CONTAINER_SPACING
+
+function Baggins:ReallyLayoutBagFrames()
+	local p = self.db.profile
+	if p.layout ~= "auto" then return end
+	local frame, xOffset, yOffset, screenHeight, freeScreenHeight, column, maxwidth
+	local screenWidth = GetScreenWidth()
+
+	screenHeight = GetScreenHeight()
+
+	local initialcorner = p.layoutanchor
+	local nextcorner, vdir, hdir
+	local availableScreenHeight
+	if initialcorner == "BOTTOMRIGHT" then
+		hdir = -1
+		vdir = 1
+		nextcorner = "TOPRIGHT"
+		xOffset = p.rightoffset
+		yOffset = p.bottomoffset
+		availableScreenHeight = screenHeight - yOffset - p.topoffset
+	elseif initialcorner == "BOTTOMLEFT" then
+		hdir = 1
+		vdir = 1
+		nextcorner = "TOPLEFT"
+		xOffset = p.leftoffset
+		yOffset = p.bottomoffset
+		availableScreenHeight = screenHeight - yOffset - p.topoffset
+	elseif initialcorner == "TOPRIGHT" then
+		hdir = -1
+		vdir = -1
+		nextcorner = "BOTTOMRIGHT"
+		xOffset = p.rightoffset
+		yOffset = p.topoffset
+		availableScreenHeight = screenHeight - yOffset - p.bottomoffset
+	elseif initialcorner == "TOPLEFT" then
+		hdir = 1
+		vdir = -1
+		nextcorner = "BOTTOMLEFT"
+		xOffset = p.leftoffset
+		yOffset = p.topoffset
+		availableScreenHeight = screenHeight - yOffset - p.bottomoffset
+	end
+	-- Adjust the start anchor for bags depending on the multibars
+
+	-- freeScreenHeight determines when to start a new column of bags
+	freeScreenHeight = availableScreenHeight
+	maxwidth = 1
+	column = 0
+	local index = 1
+	local columnoffset = 0
+	local prevframe
+	for id, frame in ipairs(self.bagframes) do
+		if (p.hideemptybags) then
+			if (frame.isempty) then
+				if (frame:IsVisible()) then
+					frame.autohide = true
+					frame:Hide()
+				end
+			else
+				if (frame.autohide) then
+					frame.autohide = false
+					frame:Show()
+				end
+			end
+		end
+		if frame:IsVisible() then
+			--self:ReallyUpdateBagFrameSize(id)
+			frame:ClearAllPoints()
+			local s = frame:GetEffectiveScale() / UIParent:GetEffectiveScale()
+			if ( index == 1 ) then
+				-- First bag
+				frame:SetPoint(initialcorner, frame:GetParent(), initialcorner,  hdir * xOffset/s, vdir * yOffset/s )
+				index = index + 1
+				prevframe = frame
+			elseif ( freeScreenHeight < frame:GetHeight()*s ) then
+				-- Start a new column
+				column = column + 1
+				columnoffset = columnoffset + maxwidth
+				maxwidth = 1
+				freeScreenHeight = availableScreenHeight
+				frame:SetPoint(initialcorner, frame:GetParent(), initialcorner, hdir * ( columnoffset + xOffset/s), vdir * yOffset/s )
+				index = index + 1
+				prevframe = frame
+			else
+				-- Anchor to the previous bag
+				frame:SetPoint(initialcorner, prevframe, nextcorner, 0, vdir * CONTAINER_SPACING)
+				index = index + 1
+				prevframe = frame
+			end
+			maxwidth = max(maxwidth, frame:GetWidth())
+			self:SaveBagPosition(id)
+			freeScreenHeight = freeScreenHeight - frame:GetHeight()*s - VISIBLE_CONTAINER_SPACING
+		end
+	end
+	self.dirtyBagLayout = nil
+end
+
+function Baggins:UpdateBagScale()
+	for i, frame in ipairs(self.bagframes) do
+		frame:SetScale(self.db.profile.scale)
+	end
+end
