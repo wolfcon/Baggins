@@ -29,6 +29,7 @@ locales\Baggins-zhCN.lua
 locales\Baggins-ruRU.lua
 
 Baggins.lua
+Baggins-Layout.lua
 Baggins-Options.lua
 Baggins-Skins.lua
 Baggins-Filtering.lua
