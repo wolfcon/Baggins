@@ -25,8 +25,8 @@ local band =
 
 local GetItemCount, GetItemInfo, GetInventoryItemLink, GetItemQualityColor, GetItemFamily, BankButtonIDToInvSlotID, GetNumBankSlots =
       _G.GetItemCount, _G.GetItemInfo, _G.GetInventoryItemLink, _G.GetItemQualityColor, _G.GetItemFamily, _G.BankButtonIDToInvSlotID, _G.GetNumBankSlots
-local GetContainerItemInfo, GetContainerItemLink, GetContainerItemQuestInfo, GetContainerNumFreeSlots, GetContainerItemCooldown =
-      _G.GetContainerItemInfo, _G.GetContainerItemLink, _G.GetContainerItemQuestInfo, _G.GetContainerNumFreeSlots, _G.GetContainerItemCooldown
+local GetContainerItemInfo, GetContainerItemLink, GetContainerNumFreeSlots, GetContainerItemCooldown =
+      _G.GetContainerItemInfo, _G.GetContainerItemLink, _G.GetContainerNumFreeSlots, _G.GetContainerItemCooldown
 local C_Item, ItemLocation, InCombatLockdown, IsModifiedClick, GetDetailedItemLevelInfo, GetContainerItemID, InRepairMode, KeyRingButtonIDToInvSlotID, C_PetJournal, C_NewItems, PlaySound =
       _G.C_Item, _G.ItemLocation, _G.InCombatLockdown, _G.IsModifiedClick, _G.GetDetailedItemLevelInfo, _G.GetContainerItemID, _G.InRepairMode, _G.KeyRingButtonIDToInvSlotID, _G.C_PetJournal, _G.C_NewItems, _G.PlaySound
 
@@ -399,6 +399,8 @@ function Baggins:OnEnable()
 	self:RegisterEvent("PLAYER_MONEY", "UpdateMoneyFrame")
 	self:RegisterEvent('AUCTION_HOUSE_SHOW', "AuctionHouse")
 	self:RegisterEvent('AUCTION_HOUSE_CLOSED', "CloseAllBags")
+
+	-- Patch 8.0.1 Added
 	-- self:RegisterEvent('SCRAPPING_MACHINE_SHOW', "OpenAllBags")
 	-- self:RegisterEvent('SCRAPPING_MACHINE_CLOSE', "CloseAllBags")
 	self:RegisterBucketEvent('ADDON_LOADED', 5,'OnAddonLoaded')
@@ -2816,14 +2818,15 @@ function Baggins:UpdateItemButton(bagframe,button,bag,slot)
 	end
 	button:SetID(slot)
 	-- quest item glow introduced in 3.3 (with silly logic)
-	local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
-	local questTexture = (questId and not isActive) and TEXTURE_ITEM_QUEST_BANG or (questId or isQuestItem) and TEXTURE_ITEM_QUEST_BORDER
-	if p.highlightquestitems and texture and questTexture then
-		button.glow:SetTexture(questTexture)
-		button.glow:SetVertexColor(1,1,1)
-		button.glow:SetAlpha(1)
-		button.glow:Show()
-	elseif p.qualitycolor and texture and quality >= p.qualitycolormin then
+	-- local isQuestItem, questId, isActive = GetContainerItemQuestInfo(bag, slot)
+	-- local questTexture = (questId and not isActive) and TEXTURE_ITEM_QUEST_BANG or (questId or isQuestItem) and TEXTURE_ITEM_QUEST_BORDER
+	-- if p.highlightquestitems and texture and questTexture then
+	-- 	button.glow:SetTexture(questTexture)
+	-- 	button.glow:SetVertexColor(1,1,1)
+	-- 	button.glow:SetAlpha(1)
+	-- 	button.glow:Show()
+	-- else
+	if p.qualitycolor and texture and quality >= p.qualitycolormin then
 		local r, g, b = GetItemQualityColor(quality)
 		button.glow:SetTexture("Interface\\Addons\\Baggins\\Textures\\Glow")
 		button.glow:SetVertexColor(r,g,b)

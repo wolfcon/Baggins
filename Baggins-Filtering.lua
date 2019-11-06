@@ -9,17 +9,15 @@ local band =
       _G.bit.band
 
 local BANK_CONTAINER = _G.BANK_CONTAINER
-local GetItemInfo, GetContainerItemLink, GetContainerItemID, GetContainerItemInfo, GetContainerNumFreeSlots, GetContainerNumSlots, GetContainerItemEquipmentSetInfo =
-      _G.GetItemInfo, _G.GetContainerItemLink, _G.GetContainerItemID, _G.GetContainerItemInfo, _G.GetContainerNumFreeSlots, _G.GetContainerNumSlots, _G.GetContainerItemEquipmentSetInfo
+local GetItemInfo, GetContainerItemLink, GetContainerItemID, GetContainerItemInfo, GetContainerNumFreeSlots, GetContainerNumSlots =
+      _G.GetItemInfo, _G.GetContainerItemLink, _G.GetContainerItemID, _G.GetContainerItemInfo, _G.GetContainerNumFreeSlots, _G.GetContainerNumSlots
 local GetInventoryItemLink, GetItemQualityColor =
       _G.GetInventoryItemLink, _G.GetItemQualityColor
-local GetEquipmentSetInfo, GetEquipmentSetItemIDs, GetNumEquipmentSets =
-      _G.GetEquipmentSetInfo, _G.GetEquipmentSetItemIDs, _G.GetNumEquipmentSets
 local GetItemInfoInstant, GetItemClassInfo, GetItemSubClassInfo, GetAuctionItemSubClasses =
       _G.GetItemInfoInstant, _G.GetItemClassInfo, _G.GetItemSubClassInfo, _G.GetAuctionItemSubClasses
 local UnitLevel = _G.UnitLevel
 local C_PetJournal = _G.C_PetJournal
-local C_Item, ItemLocation, C_EquipmentSet = _G.C_Item, _G.ItemLocation, _G.C_EquipmentSet
+local C_Item, ItemLocation = _G.C_Item, _G.ItemLocation
 
 --GLOBALS: UNKNOWN, EasyMenu
 
@@ -1428,30 +1426,31 @@ end
 
 -----------------------------------------------------------------------
 -- Equipment Set
-local equipmentSets = {}
+-- local equipmentSets = {}
 
-local function updateSets()
-	wipe(equipmentSets)
-	for _, id in next, C_EquipmentSet.GetEquipmentSetIDs() do
-		local name = C_EquipmentSet.GetEquipmentSetInfo(id)
-		equipmentSets[name] = name
-	end
-end
+-- local function updateSets()
+-- 	wipe(equipmentSets)
+-- 	for _, id in next, GetEquipmentSetIDs() do
+-- 		local name = 
+-- 		GetEquipmentSetInfo(id)
+-- 		equipmentSets[name] = name
+-- 	end
+-- end
 
 local function fullUpdateSets()
-	updateSets()
+	-- updateSets()
 	Baggins:ForceFullUpdate()
 end
 
 -- Baggins:RegisterEvent("EQUIPMENT_SETS_CHANGED", fullUpdateSets)
 -- required when AddonLoader is not installed
-Baggins:RegisterEvent("PLAYER_LOGIN", updateSets)
+-- Baggins:RegisterEvent("PLAYER_LOGIN", updateSets)
 -- required when AddonLoader is installed
-updateSets()
+-- updateSets()
 
-local function getEquipmentSetChoices()
-	return equipmentSets
-end
+-- local function getEquipmentSetChoices()
+-- 	return equipmentSets
+-- end
 
 local function getSetValue(info, key)
 	return info.arg.sets and info.arg.sets[key]
@@ -1469,52 +1468,52 @@ local function isAnySet(info)
 	return info.arg.anyset
 end
 
-Baggins:AddCustomRule("EquipmentSet", {
-	DisplayName = L["Equipment Set"],
-	Description = L["Filter by Equipment Set"],
-	GetName = function(rule)
-			local result = ""
-			if rule.anySet then
-				return L["Any"]
-			elseif rule.sets then
-				for k in pairs(rule.sets) do
-					result = result .. " " .. k
-				end
-			end
-			return result
-		end,
-	Matches = function(bag, slot, rule)
-			local _, item = GetContainerItemInfo(bag, slot)
-			local inset, setstring = GetContainerItemEquipmentSetInfo(bag, slot)
-			if not inset then return false end
-			if rule.anyset then return true end
-			if not rule.sets then return false end
-			local sets = { (","):split(setstring) }
-			for i,v in ipairs(sets) do
-			local set = v:gsub("^ ", "")
-				if rule.sets[set] then
-					return true
-				end
-			end
-			return false
-		end,
-	Ace3Options = {
-		anyset = {
-			name = L["Any"],
-			desc = "",
-			type = 'toggle',
-		},
-		sets = {
-			name = L["Equipment Sets"],
-			desc = "",
-			type = 'multiselect',
-			values = getEquipmentSetChoices,
-			get = getSetValue,
-			set = toggleSetValue,
-			disabled = isAnySet,
-		},
-	},
-})
+-- Baggins:AddCustomRule("EquipmentSet", {
+-- 	DisplayName = L["Equipment Set"],
+-- 	Description = L["Filter by Equipment Set"],
+-- 	GetName = function(rule)
+-- 			local result = ""
+-- 			if rule.anySet then
+-- 				return L["Any"]
+-- 			elseif rule.sets then
+-- 				for k in pairs(rule.sets) do
+-- 					result = result .. " " .. k
+-- 				end
+-- 			end
+-- 			return result
+-- 		end,
+-- 	Matches = function(bag, slot, rule)
+-- 			local _, item = GetContainerItemInfo(bag, slot)
+-- 			local inset, setstring = GetContainerItemEquipmentSetInfo(bag, slot)
+-- 			if not inset then return false end
+-- 			if rule.anyset then return true end
+-- 			if not rule.sets then return false end
+-- 			local sets = { (","):split(setstring) }
+-- 			for i,v in ipairs(sets) do
+-- 			local set = v:gsub("^ ", "")
+-- 				if rule.sets[set] then
+-- 					return true
+-- 				end
+-- 			end
+-- 			return false
+-- 		end,
+-- 	Ace3Options = {
+-- 		anyset = {
+-- 			name = L["Any"],
+-- 			desc = "",
+-- 			type = 'toggle',
+-- 		},
+-- 		sets = {
+-- 			name = L["Equipment Sets"],
+-- 			desc = "",
+-- 			type = 'multiselect',
+-- 			values = getEquipmentSetChoices,
+-- 			get = getSetValue,
+-- 			set = toggleSetValue,
+-- 			disabled = isAnySet,
+-- 		},
+-- 	},
+-- })
 
 local INV_TYPES = {
   INVTYPE_HEAD = INVTYPE_HEAD,

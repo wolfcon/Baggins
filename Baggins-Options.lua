@@ -1465,13 +1465,13 @@ Baggins.defaultcategories = {
 			type="PTSet"
 		},
 	},
-	[L["In Use"]] = {
-		name=L["In Use"],
-		{
-			anyset=true,
-			type="EquipmentSet"
-		},
-	},
+	-- [L["In Use"]] = {
+	-- 	name=L["In Use"],
+	-- 	{
+	-- 		anyset=true,
+	-- 		type="EquipmentSet"
+	-- 	},
+	-- },
 	[L["New"]] = { { ["name"] = L["New"], ["type"] = "NewItems" }, },
 }
 
