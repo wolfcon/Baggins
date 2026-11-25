@@ -122,6 +122,12 @@ function defaultSkin:SkinBag(frame)
     frame.compressbutton:ClearAllPoints();
     frame.compressbutton:SetPoint("TOPRIGHT", frame.closebutton, "TOPLEFT", -4, -2);
 
+    if frame.compressbutton:IsShown() then
+        frame.sortbutton:SetPoint("RIGHT", frame.compressbutton, "LEFT", -2, 0)
+    else
+        frame.sortbutton:SetPoint("RIGHT", frame.closebutton, "LEFT", -2, -2)
+    end
+
     frame.title:SetVertexColor(1,1,1,1)
     frame.title:ClearAllPoints()
     -- double anchoring is required to resize bag properly
@@ -181,6 +187,11 @@ function blizzardSkin:SkinBag(frame)
     frame.compressbutton:ClearAllPoints();
     frame.compressbutton:SetPoint("TOPRIGHT", frame.closebutton, "BOTTOMRIGHT", -12, 8);
 
+    if frame.compressbutton:IsShown() then
+        frame.sortbutton:SetPoint("RIGHT", frame.compressbutton, "LEFT", -2, 0)
+    else
+        frame.sortbutton:SetPoint("RIGHT", frame.closebutton, "LEFT", -2, -2)
+    end
 
     if not frame.portrait then
         frame.portrait = frame:CreateTexture(frame:GetName().."Portrait","OVERLAY")

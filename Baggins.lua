@@ -3003,12 +3003,45 @@ function Baggins:CreateBagFrame(bagid)
             if Baggins.db.profile.bags[BagTable.bagid] then
                 if (not Baggins.db.profile.bags[BagTable.bagid].isBank) == (not bank) then
                     (compressable and BagTable.compressbutton.Show or BagTable.compressbutton.Hide)(BagTable.compressbutton);
+
+                    if BagTable.compressbutton:IsShown() then
+                        BagTable.sortbutton:SetPoint("RIGHT", BagTable.compressbutton, "LEFT", -2, 0)
+                    else
+                        BagTable.sortbutton:SetPoint("RIGHT", BagTable.closebutton, "LEFT", -2, -2)
+                    end
                 end
             end
         end,
         frame
     );
 
+    local source = _G.BagItemAutoSortButton
+    if source then
+        -- Blizzard sort button
+        frame.sortbutton = CreateFrame("Button", nil, frame)
+        frame.sortbutton:SetSize(32, 32)
+
+        frame.sortbutton:SetScript("OnClick", function()
+            if C_Container and C_Container.SortBags then
+                C_Container.SortBags()
+            elseif SortBags then
+                SortBags()
+            end
+        end)
+
+        frame.sortbutton:SetScript("OnEnter", function(self)
+            GameTooltip:SetOwner(self, "ANCHOR_DEFAULT")
+            GameTooltip:SetText(L["Run Blizzard Bag Sort"])
+            GameTooltip:Show()
+        end)
+
+        frame.sortbutton:SetScript("OnLeave", function()
+            GameTooltip:Hide()
+        end)
+
+        frame.sortbutton:SetNormalAtlas("bags-button-autosort-up")
+    end
+    
     frame.title = frame:CreateFontString(bagname.."Title","OVERLAY","GameFontNormalLarge")
     frame.title:SetText("Baggins")
     frame:SetFrameStrata("HIGH")
