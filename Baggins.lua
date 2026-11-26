@@ -3029,8 +3029,8 @@ function Baggins:CreateBagFrame(bagid)
             end
         end)
 
-        frame.sortbutton:SetScript("OnEnter", function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_DEFAULT")
+        frame.sortbutton:SetScript("OnEnter", function(this)
+            GameTooltip:SetOwner(this, "ANCHOR_DEFAULT")
             GameTooltip:SetText(L["Run Blizzard Bag Sort"])
             GameTooltip:Show()
         end)
@@ -3041,7 +3041,7 @@ function Baggins:CreateBagFrame(bagid)
 
         frame.sortbutton:SetNormalAtlas("bags-button-autosort-up")
     end
-    
+
     frame.title = frame:CreateFontString(bagname.."Title","OVERLAY","GameFontNormalLarge")
     frame.title:SetText("Baggins")
     frame:SetFrameStrata("HIGH")

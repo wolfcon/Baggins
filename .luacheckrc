@@ -518,4 +518,7 @@ globals = {
     "BagginsHonorText",
     "BagginsMerchantFavorIcon",
     "BagginsMerchantFavorText",
+    "SortBags",
+    "CLEAN_UP_BAGS",
+    "GetMouseFocus",
 }
